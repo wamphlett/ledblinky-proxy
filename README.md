@@ -5,7 +5,7 @@ This app is designed to sit between [LaunchBox/BigBox](https://www.launchbox-app
 I wanted the ability to be able to act on events from BigBox within some of my own applications but there is no functionality directly in BigBox to do this. LEDBlinky has an "external application" feature which allows you to call other applications based on the events LEDBlinky receives from the frontend - this works really well and would probably cater for most use cases on its own. I wanted more control over the events that were sent out and LEDBlinky has a very simple API so I decided to write something to sit in between LaunchBox and LEDBlinky to fork the events off. The result is this simple app. 
 
 ## Install
-Download the latest release. Unzip the archive and place the files inside your LEDBlinky install directory (this can be someone else if you prefer, you just need to update the `ledblinkyPath` in the `yaml` config file).
+Download the [latest release](https://github.com/wamphlett/ledblinky-proxy/releases/latest). Unzip the archive and place the files inside your LEDBlinky install directory (this can be someone else if you prefer, you just need to update the `ledblinkyPath` in the `yaml` config file).
 
 Go to the integrations options in LaunchBox and navigate to LEDBlinky. Update the LEDBlinky Path the point to the new proxy file you downloaded. Thats it, load up LaunchBox/BigBox and make sure LEDBlinky still works! 
 
