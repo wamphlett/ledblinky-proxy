@@ -8,8 +8,8 @@ ledblinkyPath: ./LEDBlinky.exe
 receivers:
   # list of executables to be published to
   executables:
-    - ./event-logger
+    # simple logging helper which will write all event data to a log file
+    # - ./event-logger
 
   # list of webhooks to be published to
   webhooks:
-    - https://eop2yw3sg5mpebi.m.pipedream.net
