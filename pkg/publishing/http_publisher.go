@@ -1,0 +1,78 @@
+package publishing
+
+import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+
+	"github.com/wamphlett/ledblinky-proxy/pkg/core/model"
+)
+
+type HTTPClient interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
+type HTTPPublisher struct {
+	address string
+	client  HTTPClient
+}
+
+type payload struct {
+	EventType    string `json:"event_type"`
+	GameName     string `json:"game_name"`
+	PlatformName string `json:"platform_name"`
+}
+
+func NewHTTPPublisher(address string) (*HTTPPublisher, error) {
+	return NewHTTPPublisherWithClient(address, &http.Client{})
+}
+
+func NewHTTPPublisherWithClient(address string, client HTTPClient) (*HTTPPublisher, error) {
+	if address == "" {
+		return nil, errors.New("cannot create HTTP publisher with empty address")
+	}
+
+	return &HTTPPublisher{
+		address: address,
+		client:  client,
+	}, nil
+}
+
+func (p *HTTPPublisher) Publish(event *model.Event) error {
+	// build a payload from the given event
+	payload, err := p.buildJsonPayload(event)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to marshal payload: %s", err.Error()))
+	}
+
+	// build a HTTP request
+	request, err := http.NewRequest("POST", p.address, bytes.NewBuffer(payload))
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to create request: %s", err.Error()))
+	}
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	// execute the request
+	response, err := p.client.Do(request)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to do request: %s", err.Error()))
+	}
+	defer func() {
+		if response.Body != nil {
+			response.Body.Close()
+		}
+	}()
+
+	return nil
+}
+
+func (p *HTTPPublisher) buildJsonPayload(event *model.Event) ([]byte, error) {
+	payload := &payload{
+		EventType:    string(event.Type),
+		GameName:     event.Game,
+		PlatformName: event.Platform,
+	}
+	return json.Marshal(payload)
+}
