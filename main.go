@@ -28,29 +28,13 @@ func main() {
 
 	log.Printf("starting new proxy service on port %d", port)
 
-	cfg, err := config.NewFromINI()
+	cfg, err := config.NewFromFile()
 	if err != nil {
 		log.Fatalf("failed to load config: %s", err.Error())
 	}
 	interceptor := intercepting.New()
 	proxy := proxying.New(interceptor, cfg.LEDBlinkyPath, int64(port))
 	proxy.ConfigurePublishers(cfg.Receivers)
-
-	// // TEMP MAKE AN EVENT LOGGER CALL
-	// tempPublisher, err := publishing.NewEXEPublisher("./event-logger")
-	// if err != nil {
-	// 	log.Printf("failed to start temp publisher: %s", err.Error())
-	// 	return
-	// }
-	// proxy.AddPublisher(tempPublisher)
-
-	// // ADD A TEMP HTTP PUBLISHER
-	// tempHTTPPublisher, err := publishing.NewHTTPPublisher("https://eop2yw3sg5mpebi.m.pipedream.net")
-	// if err != nil {
-	// 	log.Printf("failed to start temp http publisher: %s", err.Error())
-	// 	return
-	// }
-	// proxy.AddPublisher(tempHTTPPublisher)
 
 	// make sure the first set of args are handled
 	proxy.Handle(os.Args[1:])

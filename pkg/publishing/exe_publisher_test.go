@@ -9,17 +9,20 @@ import (
 	"github.com/wamphlett/ledblinky-proxy/pkg/core/model"
 )
 
+// MockExecutor defines an executor which records the last execution
 type MockExecutor struct {
 	lastPath string
 	lastArgs []string
 }
 
+// Run records the given path and arguments
 func (e *MockExecutor) Run(path string, args []string) error {
 	e.lastPath = path
 	e.lastArgs = args
 	return nil
 }
 
+// LastCommandString returns the last execution as a string
 func (e *MockExecutor) LastCommandString() string {
 	return fmt.Sprintf("%s \"%s\"", e.lastPath, strings.Join(e.lastArgs, "\" \""))
 }

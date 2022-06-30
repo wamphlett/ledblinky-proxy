@@ -6,15 +6,22 @@ import (
 	"github.com/wamphlett/ledblinky-proxy/pkg/core/model"
 )
 
+// Interceptor is responsible for taking events from LaunchBox which were intended for
+// LEDBlinkey. It transforms these events into proxy events and holds information about
+// the current game/platform so that it can enrich events which did not originally
+// have this information.
 type Interceptor struct {
 	currentGame     string
 	currentPlatform string
 }
 
+// New creates a new Interceptor
 func New() *Interceptor {
 	return &Interceptor{}
 }
 
+// Intercept takes the raw arguments which were intended for LEDBlinky and returns a new
+// proxy event.
 func (i *Interceptor) Intercept(rawArgs []string) *model.Event {
 	eventType := i.convertEventType(rawArgs[0])
 	// the game selected event contains information about about the game and
@@ -44,8 +51,9 @@ func (i *Interceptor) Intercept(rawArgs []string) *model.Event {
 	return event
 }
 
+// convertEventType is a 1:1 mapping of the LEDBlinky event types to proxy types
 func (i *Interceptor) convertEventType(eventTypeString string) model.EventType {
-	// We expect all LEDBlinky event types to be integers
+	// we expect all LEDBlinky event types to be integers
 	eventInt, err := strconv.ParseInt(eventTypeString, 10, 64)
 	if err != nil {
 		return model.EVENT_TYPE_UNKNOWN

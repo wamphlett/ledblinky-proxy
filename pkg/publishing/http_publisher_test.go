@@ -9,15 +9,18 @@ import (
 	"github.com/wamphlett/ledblinky-proxy/pkg/core/model"
 )
 
+// MockHTTPClient defines a HTTP Client which records the last request
 type MockHTTPClient struct {
 	lastRequest *http.Request
 }
 
+// Do records the given request
 func (c *MockHTTPClient) Do(request *http.Request) (*http.Response, error) {
 	c.lastRequest = request
 	return &http.Response{}, nil
 }
 
+// LastRequest returns the last recorded request
 func (c *MockHTTPClient) LastRequest() *http.Request {
 	return c.lastRequest
 }

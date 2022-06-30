@@ -8,19 +8,24 @@ import (
 	"github.com/wamphlett/ledblinky-proxy/pkg/core/model"
 )
 
+// Executor defines the methods required to execute a shell script
 type Executor interface {
 	Run(path string, args []string) error
 }
 
+// EXEPublisher is used to pass event information to another executable
 type EXEPublisher struct {
 	executablePath string
 	executor       Executor
 }
 
+// NewEXEPublisher creates a new EXEPublisher with the required dependencies
 func NewEXEPublisher(executablePath string) (*EXEPublisher, error) {
 	return NewEXEPublisherWithExecutor(executablePath, &RealExecutor{})
 }
 
+// NewEXEPublisherWithExecutor creates a new EXEPublisher with the required
+// dependencies and allows for the Executor to be specified
 func NewEXEPublisherWithExecutor(executablePath string, executor Executor) (*EXEPublisher, error) {
 	if executablePath == "" {
 		return nil, errors.New("cannot create executor with empty path")
@@ -31,6 +36,9 @@ func NewEXEPublisherWithExecutor(executablePath string, executor Executor) (*EXE
 	}, nil
 }
 
+// Publish publishes an event the configured executable path.
+//  example:
+//    app.exe [EVENT TYPE] [GAME NAME] [PLATFORM NAME]
 func (p *EXEPublisher) Publish(event *model.Event) error {
 	args := []string{string(event.Type)}
 	if event.Game != "" {
@@ -46,9 +54,10 @@ func (p *EXEPublisher) Publish(event *model.Event) error {
 	return nil
 }
 
-type RealExecutor struct {
-}
+// RealExecutor defines an executor which uses the exe.Cmd library
+type RealExecutor struct{}
 
+// Run executes the given path and arguments
 func (e *RealExecutor) Run(path string, args []string) error {
 	cmd := exec.Command(path, args...)
 	return cmd.Run()

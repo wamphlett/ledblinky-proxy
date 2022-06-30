@@ -1,5 +1,6 @@
 package model
 
+// EventType defines all the possible event types the proxy sends
 type EventType string
 
 const (
@@ -16,6 +17,7 @@ const (
 	EVENT_TYPE_UNKNOWN                  = "UNKNOWN"
 )
 
+// Event defines the format for an event
 type Event struct {
 	Type     EventType
 	Game     string

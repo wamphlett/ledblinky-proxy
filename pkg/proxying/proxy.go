@@ -16,14 +16,18 @@ import (
 	"github.com/wamphlett/ledblinky-proxy/pkg/publishing"
 )
 
+// Publisher defines the methods required by any publishers
 type Publisher interface {
 	Publish(*model.Event) error
 }
 
+// Interceptor defines methods required to intercept events
 type Interceptor interface {
 	Intercept([]string) *model.Event
 }
 
+// Proxy is responsible for orchestrating the interception, and publishing
+// of events
 type Proxy struct {
 	interceptor   Interceptor
 	publishers    []Publisher
@@ -33,6 +37,7 @@ type Proxy struct {
 	ledBlinkyPath string
 }
 
+// New creates a new Proxy with the required dependencies
 func New(interceptor Interceptor, ledBlinkyPath string, port int64) *Proxy {
 	return &Proxy{
 		interceptor:   interceptor,
@@ -61,6 +66,7 @@ func validateLEDBlinkyPath(ledBlinkyPath string) string {
 	return ledBlinkyPath
 }
 
+// ConfigurePublishers creates new publishers based on the information in the Config
 func (p *Proxy) ConfigurePublishers(receivers *config.ReceiversConfig) {
 	for _, exePath := range receivers.Executables {
 		publisher, err := publishing.NewEXEPublisher(exePath)
@@ -81,10 +87,12 @@ func (p *Proxy) ConfigurePublishers(receivers *config.ReceiversConfig) {
 	}
 }
 
+// AddPublisher adds a new publisher to the list
 func (p *Proxy) AddPublisher(publisher Publisher) {
 	p.publishers = append(p.publishers, publisher)
 }
 
+// Handle
 func (p *Proxy) Handle(args []string) {
 	p.handlerWg.Add(1)
 	defer p.handlerWg.Done()
@@ -116,6 +124,7 @@ func (p *Proxy) Handle(args []string) {
 	}
 }
 
+// CallLEDBlinkey passes the given arguments straight through to the LEDBlinky executable
 func (p *Proxy) CallLEDBlinkey(args []string) error {
 	if p.ledBlinkyPath == "" {
 		return nil
@@ -127,6 +136,7 @@ func (p *Proxy) CallLEDBlinkey(args []string) error {
 	return nil
 }
 
+// Start starts a new RPC server and waits to be shutdown
 func (p *Proxy) Start() error {
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", p.port))
 	if err != nil {
@@ -146,6 +156,7 @@ func (p *Proxy) Start() error {
 	return nil
 }
 
+// End closes the RPC server
 func (p *Proxy) End() {
 	p.keepAlive <- true
 }
